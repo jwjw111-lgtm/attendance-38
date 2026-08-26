@@ -850,7 +850,7 @@ function renderFeedback(){
   const box = document.getElementById("feedbackList");
   if(!box) return;
   if(feedbackData.length === 0){
-    box.innerHTML = `<div class="fb-empty">لا توجد آراء بعد — كوني أول من يشارك رأيها 🌿</div>`;
+    box.innerHTML = `<div class="fb-empty">لا توجد آراء بعد 🌿</div>`;
     return;
   }
   box.innerHTML = feedbackData.map(f=> feedbackItemHtml(f, false)).join("");
