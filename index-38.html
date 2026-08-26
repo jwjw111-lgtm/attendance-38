@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منافسة الانضباط</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --green:#145C4B;
+    --green-dark:#0C3D31;
+    --gold:#C9A227;
+    --bg:#F7F5F1;
+    --card:#FFFFFF;
+    --text:#1F2A24;
+    --muted:#6B7A73;
+    --border:#E4E0D8;
+    --danger:#B3462C;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Tajawal',sans-serif; direction:rtl;
+    padding-bottom:60px;
+  }
+  h1,h2,h3,.brand{ font-family:'Cairo',sans-serif; }
+  header.top{
+    background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);
+    color:#fff; padding:28px 20px 22px;
+  }
+  header.top .row{max-width:960px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;}
+  header.top h1{margin:0;font-size:26px;font-weight:800;}
+  header.top p{margin:6px 0 0;opacity:.85;font-size:14px;}
+  .week-badge{
+    background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25);
+    border-radius:14px; padding:10px 16px; text-align:center; min-width:150px;
+  }
+  .week-badge .n{font-family:'Cairo';font-weight:800;font-size:20px;color:var(--gold);}
+  .week-badge .d{font-size:12px;opacity:.8;margin-top:2px;}
+  .week-badge .bar{height:4px;background:rgba(255,255,255,.2);border-radius:3px;margin-top:8px;overflow:hidden;}
+  .week-badge .bar div{height:100%;background:var(--gold);}
+
+  nav.tabs{max-width:960px;margin:18px auto 0;display:flex;gap:8px;padding:0 20px;flex-wrap:wrap;}
+  nav.tabs button{
+    font-family:'Cairo'; font-weight:700; font-size:14px; cursor:pointer;
+    border:1px solid var(--border); background:var(--card); color:var(--muted);
+    padding:10px 18px; border-radius:10px; transition:.15s;
+  }
+  nav.tabs button.active{background:var(--green); color:#fff; border-color:var(--green);}
+
+  .filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .filter-btn{
+    font-family:'Tajawal'; font-weight:700; font-size:13px; cursor:pointer;
+    border:1px solid var(--border); background:var(--card); color:var(--muted);
+    padding:8px 14px; border-radius:20px; transition:.15s;
+  }
+  .filter-btn.active{background:var(--gold); color:#fff; border-color:var(--gold);}
+
+  main{max-width:960px;margin:20px auto;padding:0 20px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+  .card h2{margin:0 0 14px;font-size:17px;color:var(--green-dark);}
+  .grid2{display:grid;grid-template-columns:1fr;gap:16px;}
+  @media(min-width:720px){.grid2{grid-template-columns:1fr 1fr;}}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--border);}
+  th{color:var(--muted);font-weight:700;font-size:12.5px;}
+  tr.rank1 td:first-child{color:var(--gold);font-weight:800;}
+  .medal{font-size:15px;}
+  @media(max-width:420px){
+    table{font-size:12.5px;}
+    th,td{padding:7px 5px;}
+    header.top h1{font-size:21px;}
+  }
+
+  label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px;font-weight:700;}
+  select,input,textarea{
+    width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:9px;
+    font-family:'Tajawal';font-size:14.5px;background:#fff;color:var(--text);
+  }
+  textarea{resize:vertical;min-height:70px;}
+
+  .fb-banner{
+    background:linear-gradient(135deg,var(--green) 0%,var(--green-dark) 100%);
+    color:#fff; border-radius:14px; padding:20px 22px; margin-bottom:18px; text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .fb-banner::before{
+    content:"❞"; position:absolute; font-family:Georgia,serif; font-size:90px; color:rgba(255,255,255,.10);
+    top:-18px; right:14px; line-height:1;
+  }
+  .fb-banner h3{font-family:'Cairo';font-weight:800;font-size:19px;margin:0 0 4px;position:relative;}
+  .fb-banner p{margin:0;font-size:13.5px;opacity:.9;position:relative;}
+
+  .fb-list{margin-top:22px;display:flex;flex-direction:column;gap:12px;}
+  .fb-item{
+    background:var(--card); border:1px solid var(--border); border-right:4px solid var(--gold);
+    border-radius:12px; padding:14px 16px; position:relative; display:flex; gap:12px;
+  }
+  .fb-avatar{
+    flex-shrink:0; width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:#fff; font-family:'Cairo'; font-weight:800; font-size:15px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fb-body{flex:1; min-width:0;}
+  .fb-name{font-family:'Cairo';font-weight:700;font-size:13.5px;color:var(--green-dark);}
+  .fb-date{font-size:11px;color:var(--muted);margin-right:8px;}
+  .fb-text{font-size:14px;margin-top:4px;line-height:1.75;color:var(--text);}
+  .fb-del{position:absolute;left:10px;top:10px;background:#FBEAE6;color:var(--danger);border:1px solid #F0D2CB;
+    border-radius:7px;width:26px;height:26px;font-size:13px;cursor:pointer;}
+  .fb-empty{text-align:center;color:var(--muted);font-size:13.5px;padding:22px 10px;}
+  button.primary{
+    margin-top:16px;width:100%;padding:12px;border:none;border-radius:9px;
+    background:var(--green);color:#fff;font-family:'Cairo';font-weight:700;font-size:15px;cursor:pointer;
+  }
+  button.primary:hover{background:var(--green-dark);}
+  button.primary:disabled{background:#C9C4B8;cursor:not-allowed;}
+  button.ghost{
+    background:transparent;border:1px solid var(--border);color:var(--muted);
+    padding:8px 14px;border-radius:8px;font-family:'Cairo';font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .msg{font-size:13px;margin-top:10px;padding:9px 12px;border-radius:8px;}
+  .msg.ok{background:#E9F3EF;color:var(--green-dark);}
+  .msg.err{background:#FBEAE6;color:var(--danger);}
+  .hidden{display:none !important;}
+  .school-tag{
+    display:inline-block;background:var(--green);color:#fff;font-family:'Cairo';font-weight:700;
+    font-size:12.5px;padding:4px 12px;border-radius:20px;margin-bottom:10px;
+  }
+  .delta-up{color:var(--danger);font-weight:700;}
+  .delta-down{color:var(--green);font-weight:700;}
+  .setup-row{display:grid;grid-template-columns:1fr 110px 44px;gap:8px;align-items:end;margin-bottom:10px;}
+  .btn-del{background:#FBEAE6;color:var(--danger);border:1px solid #F0D2CB;border-radius:9px;height:44px;font-size:16px;cursor:pointer;}
+  .note{font-size:12px;color:var(--muted);line-height:1.9;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="row">
+    <div>
+      <h1>منافسة الانضباط</h1>
+      <p>منافسة أسبوعية بين الفصول على الحضور والانضباط — الفصل الدراسي الأول 1448/1449هـ</p>
+    </div>
+    <div class="week-badge" id="weekBadge">
+      <div class="n">—</div>
+      <div class="d">جاري تحديد الأسبوع...</div>
+      <div class="bar"><div id="weekProgress" style="width:0%"></div></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="active" data-tab="dashboard">لوحة المقارنة العامة</button>
+  <button data-tab="setup">الإدارة</button>
+</nav>
+
+<main>
+
+  <!-- ===== DASHBOARD (public) ===== -->
+  <section id="tab-dashboard">
+    <div class="filter-bar" id="categoryFilter">
+      <button class="filter-btn active" data-cat="all">الكل</button>
+      <button class="filter-btn" data-cat="primary">الصفوف الأولية (١-٣)</button>
+      <button class="filter-btn" data-cat="upper">الصفوف العليا (٤-٦)</button>
+    </div>
+
+    <div class="card">
+      <h2>الأكثر انضباطًا — مؤشر الانضباط</h2>
+      <canvas id="barChart" height="180"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>الترتيب الحالي</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>#</th><th>الفصل</th><th>غياب</th><th>تأخر</th><th>مؤشر الانضباط</th><th>الأسابيع</th></tr></thead>
+        <tbody id="rankTable"><tr><td colspan="6" class="note">لا توجد بيانات بعد</td></tr></tbody>
+      </table></div>
+      <div class="note">مؤشر الانضباط = (الغياب × ٢) + (التأخر × ١) — الأقل هو الأكثر انضباطًا.</div>
+    </div>
+
+    <div class="card">
+      <h2>الاتجاه الأسبوعي لكل فصل</h2>
+      <canvas id="lineChart" height="180"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>التحليل العام (مؤشر الانضباط أسبوعيًا لكل الفصول)</h2>
+      <canvas id="trendChart" height="150"></canvas>
+      <div id="trendDelta" class="note"></div>
+    </div>
+
+    <div class="card">
+      <h2>تقرير أسبوعي (PDF)</h2>
+      <label>اختاري الأسبوع</label>
+      <select id="reportWeekSelect"></select>
+      <label>الفئة</label>
+      <select id="reportCategorySelect">
+        <option value="all">كل الفصول</option>
+        <option value="primary">الصفوف الأولية (١-٣)</option>
+        <option value="upper">الصفوف العليا (٤-٦)</option>
+      </select>
+      <button class="primary" id="btnDownloadReport">تحميل التقرير</button>
+      <div class="note">يفتح التقرير في نافذة جديدة — اختاري "حفظ كـ PDF" من خيارات الطباعة.</div>
+    </div>
+
+    <div class="card">
+      <div class="fb-banner">
+        <h3>شركاء النجاح</h3>
+        <p>نسعد بسماع آرائكم واقتراحاتكم</p>
+      </div>
+      <label>الاسم (اختياري)</label>
+      <input id="feedbackName" placeholder="مثال: ولي أمر الفصل الأول">
+      <label>رأيك أو اقتراحك</label>
+      <textarea id="feedbackText" placeholder="اكتبي رأيك أو اقتراحك هنا..."></textarea>
+      <button class="primary" id="btnSendFeedback">إرسال</button>
+      <div id="feedbackMsg"></div>
+      <div id="feedbackList" class="fb-list"></div>
+    </div>
+  </section>
+
+  <!-- ===== ADMIN: MANAGE CLASSES + ENTER ATTENDANCE ===== -->
+  <section id="tab-setup" class="hidden">
+    <div class="card" id="adminGate">
+      <h2>دخول الإدارة</h2>
+      <label>رمز الدخول</label>
+      <input type="password" id="adminPass" placeholder="•••••">
+      <button class="primary" id="btnAdminLogin">دخول</button>
+      <div id="adminMsg"></div>
+    </div>
+
+    <div class="card hidden" id="adminAttendancePanel">
+      <h2>تسجيل / تعديل غياب فصل</h2>
+      <label>الفصل</label>
+      <select id="adminSchoolSelect"></select>
+      <label>الأسبوع</label>
+      <select id="adminWeekSelect"></select>
+      <div id="adminWeekNote" class="msg" style="display:none;"></div>
+      <label>عدد حالات الغياب</label>
+      <input type="number" id="adminAbsencesInput" min="0" placeholder="مثال: 4">
+      <label>عدد مرات التأخر</label>
+      <input type="number" id="adminLateInput" min="0" placeholder="مثال: 3">
+      <button class="primary" id="btnAdminSaveAttendance">حفظ</button>
+      <div id="adminAttendanceMsg"></div>
+      <div class="note">تقدرين تعدلين أي أسبوع قديم أو حالي لأي فصل وقت ما احتجتِ. مؤشر الانضباط يُحتسب: كل يوم غياب = نقطتان، وكل مرة تأخر = نقطة واحدة — الأقل هو الأكثر انضباطًا.</div>
+
+      <h2 style="margin-top:26px;">سجل هذا الفصل</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>الأسبوع</th><th>التاريخ</th><th>الغياب</th><th>التأخر</th></tr></thead>
+        <tbody id="adminSchoolLog"></tbody>
+      </table></div>
+    </div>
+
+    <div class="card hidden" id="adminPanel">
+      <h2>أسماء الفصول</h2>
+      <button class="ghost" id="btnAddSchool" style="margin-bottom:14px;">+ إضافة فصل جديد</button>
+      <div id="schoolsSetup"></div>
+      <button class="primary" id="btnSaveSetup">حفظ التعديلات</button>
+      <div id="setupMsg"></div>
+      <div class="note">
+        غيّري الاسم في أي وقت. حذف فصل يحذف بيانات غيابه بشكل نهائي من الرسوم البيانية والترتيب.
+      </div>
+    </div>
+
+    <div class="card hidden" id="adminFeedbackPanel">
+      <h2>إدارة آراء أولياء الأمور</h2>
+      <div class="note" style="margin-top:0;">هذي القائمة خاصة بك فقط — تقدرين تحذفين أي رأي من هنا، ولا يظهر زر الحذف أبدًا للأهالي في اللوحة العامة.</div>
+      <div id="adminFeedbackList" class="fb-list"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer style="max-width:960px;margin:10px auto 30px;padding:0 20px;text-align:center;">
+  <div style="font-size:13px;color:var(--muted);border-top:1px solid var(--border);padding-top:16px;line-height:2;">
+    مدرسة الابتدائية ٣٨ — مديرة المدرسة: تهاني الهليل
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, collection, onSnapshot, getDocs, deleteDoc, query, where
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ============================================================
+   1) عدّلي القيم التالية بمفاتيح مشروعك في Firebase
+      (Project settings → مشروع "38th elementary school" → تطبيق "Attendance-app")
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCMzuE3v0HaBbuZvKd7yHBh5--0Jh2CyNk",
+  authDomain: "attendance-38.firebaseapp.com",
+  projectId: "attendance-38",
+  storageBucket: "attendance-38.firebasestorage.app",
+  messagingSenderId: "255395066394",
+  appId: "1:255395066394:web:b4c081f4a461268eaf57a3"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ============================================================
+   2) رمز دخول الإدارة (إدخال الغياب + إدارة الفصول) — غيّريه لاحقًا من الكود
+   ============================================================ */
+const ADMIN_PASSWORD = "38380";
+
+/* ============================================================
+   التقويم الدراسي — الفصل الأول 1448/1449هـ (من الجدول المرسل)
+   ============================================================ */
+const WEEKS = [
+  {n:1,  start:"2026-08-23", end:"2026-08-27", schoolDays:5},
+  {n:2,  start:"2026-08-30", end:"2026-09-03", schoolDays:5},
+  {n:3,  start:"2026-09-06", end:"2026-09-10", schoolDays:5},
+  {n:4,  start:"2026-09-13", end:"2026-09-17", schoolDays:5},
+  {n:5,  start:"2026-09-20", end:"2026-09-24", schoolDays:3, note:"إجازة اليوم الوطني يوم الأربعاء والخميس — أيام الدراسة الفعلية 3 أيام فقط (الأحد، الاثنين، الثلاثاء)"},
+  {n:6,  start:"2026-09-27", end:"2026-10-01", schoolDays:5},
+  {n:7,  start:"2026-10-04", end:"2026-10-08", schoolDays:5},
+  {n:8,  start:"2026-10-11", end:"2026-10-15", schoolDays:5},
+  {n:9,  start:"2026-10-18", end:"2026-10-22", schoolDays:5},
+  {n:10, start:"2026-10-25", end:"2026-10-29", schoolDays:5},
+  {n:11, start:"2026-11-01", end:"2026-11-05", schoolDays:5},
+  {n:12, start:"2026-11-08", end:"2026-11-12", schoolDays:5},
+  {n:13, start:"2026-11-15", end:"2026-11-19", schoolDays:5},
+  {n:14, start:"2026-11-29", end:"2026-12-03", schoolDays:5},
+  {n:15, start:"2026-12-06", end:"2026-12-10", schoolDays:5},
+  {n:16, start:"2026-12-13", end:"2026-12-17", schoolDays:5},
+  {n:17, start:"2026-12-20", end:"2026-12-24", schoolDays:5},
+  {n:18, start:"2026-12-27", end:"2026-12-31", schoolDays:5},
+  {n:19, start:"2027-01-03", end:"2027-01-07", schoolDays:5},
+];
+let SCHOOL_IDS = []; // تُحدَّث تلقائيًا من قاعدة البيانات — تدعم إضافة وحذف مدارس
+function fmtRange(w){return `${w.start.slice(5)} → ${w.end.slice(5)}`;}
+
+/* ---------- تحديد الأسبوع الحالي ---------- */
+function computeCurrentWeek(){
+  const today = new Date();
+  for(const w of WEEKS){
+    if(today >= new Date(w.start) && today <= new Date(w.end+"T23:59:59")) return w;
+  }
+  if(today < new Date(WEEKS[0].start)) return null;
+  if(today > new Date(WEEKS[WEEKS.length-1].end)) return WEEKS[WEEKS.length-1];
+  // بين أسبوعين (إجازة) -> أقرب أسبوع قادم
+  for(const w of WEEKS){ if(today < new Date(w.start)) return w; }
+  return WEEKS[WEEKS.length-1];
+}
+(function renderWeekBadge(){
+  const w = computeCurrentWeek();
+  const box = document.getElementById("weekBadge");
+  if(!w){
+    box.querySelector(".n").textContent="لم يبدأ الفصل";
+    box.querySelector(".d").textContent = `يبدأ بتاريخ ${fmtRange(WEEKS[0]).split(" → ")[0]}`;
+    return;
+  }
+  box.querySelector(".n").textContent = `الأسبوع ${w.n} من 19`;
+  box.querySelector(".d").textContent = fmtRange(w);
+  document.getElementById("weekProgress").style.width = (w.n/19*100)+"%";
+})();
+
+/* ---------- تبويبات ---------- */
+document.querySelectorAll("nav.tabs button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    ["dashboard","setup"].forEach(t=>{
+      document.getElementById("tab-"+t).classList.toggle("hidden", t!==btn.dataset.tab);
+    });
+  });
+});
+
+/* ---------- تحميل بيانات المدارس (أسماء) ---------- */
+let schoolsData = {}; // {id:{name, order}, ...}
+
+async function ensureSchoolsExist(){
+  const snap = await getDocs(collection(db,"schools"));
+  if(snap.empty){
+    const grades = ["الأول","الثاني","الثالث","الرابع","الخامس","السادس"];
+    for(let i=0;i<6;i++){
+      await setDoc(doc(collection(db,"schools")), {
+        name: `الفصل ${grades[i]}`,
+        order: i,
+        category: i < 3 ? "primary" : "upper"
+      });
+    }
+  }
+}
+
+function fillSchoolDropdown(select){
+  select.innerHTML = "";
+  SCHOOL_IDS.forEach(id=>{
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = schoolsData[id]?.name || id;
+    select.appendChild(opt);
+  });
+}
+
+function fillWeekDropdown(select){
+  // يُستخدم فقط في لوحة الإعداد (اختيار أي أسبوع للتعديل الإداري)
+  select.innerHTML = "";
+  WEEKS.forEach(w=>{
+    const opt = document.createElement("option");
+    opt.value = w.n;
+    opt.textContent = `الأسبوع ${w.n}  (${fmtRange(w)})` + (w.note ? "  ⚠️" : "");
+    select.appendChild(opt);
+  });
+  const cur = computeCurrentWeek();
+  if(cur) select.value = cur.n;
+}
+
+function noteTextFor(weekNum){
+  const w = WEEKS.find(x=>x.n===weekNum);
+  return w && w.note ? w.note : null;
+}
+
+function showWeekNote(boxId, weekNum){
+  const noteBox = document.getElementById(boxId);
+  if(!noteBox) return;
+  const note = noteTextFor(weekNum);
+  if(note){
+    noteBox.textContent = "⚠️ " + note;
+    noteBox.className = "msg err";
+    noteBox.style.display = "block";
+  } else {
+    noteBox.style.display = "none";
+  }
+}
+
+/* ---------- الاستماع الحي لبيانات الفصول والحضور ---------- */
+onSnapshot(collection(db,"schools"), snap=>{
+  schoolsData = {};
+  const list = [];
+  snap.forEach(d=>{ schoolsData[d.id] = d.data(); list.push({id:d.id, order: d.data().order ?? 999}); });
+  list.sort((a,b)=>a.order-b.order);
+  SCHOOL_IDS = list.map(x=>x.id);
+  fillSchoolDropdown(document.getElementById("adminSchoolSelect"));
+  buildSetupPanel();
+  renderDashboard();
+});
+
+let attendanceData = {}; // {schoolId: {weekN: {absences, late}}}
+onSnapshot(collection(db,"attendance"), snap=>{
+  attendanceData = {};
+  snap.forEach(d=>{
+    const {schoolId, weekNumber, absences, late} = d.data();
+    attendanceData[schoolId] = attendanceData[schoolId] || {};
+    attendanceData[schoolId][weekNumber] = { absences: absences||0, late: late||0 };
+  });
+  renderDashboard();
+  renderAdminSchoolLog();
+});
+
+fillWeekDropdown(document.getElementById("adminWeekSelect"));
+fillWeekDropdown(document.getElementById("reportWeekSelect"));
+(function addAllWeeksOption(){
+  const sel = document.getElementById("reportWeekSelect");
+  const opt = document.createElement("option");
+  opt.value = "all";
+  opt.textContent = "كل الأسابيع (تقرير شامل)";
+  sel.insertBefore(opt, sel.firstChild);
+})();
+document.getElementById("adminWeekSelect").addEventListener("change", (e)=> showWeekNote("adminWeekNote", Number(e.target.value)) );
+
+/* ---------- فلتر الفئة (أولية / عليا / الكل) ---------- */
+let currentCategoryFilter = "all";
+function getFilteredIds(){
+  if(currentCategoryFilter === "all") return SCHOOL_IDS;
+  return SCHOOL_IDS.filter(id => (schoolsData[id]?.category || "primary") === currentCategoryFilter);
+}
+document.querySelectorAll("#categoryFilter .filter-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("#categoryFilter .filter-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    currentCategoryFilter = btn.dataset.cat;
+    renderDashboard();
+  });
+});
+
+/* ---------- الرسوم البيانية ---------- */
+let barChart, lineChart, trendChart;
+const palette = ["#145C4B","#C9A227","#B3462C","#3D6E8F","#7A5C9E","#5B8C3C"];
+
+function schoolTotals(){
+  return getFilteredIds().map(id=>{
+    const weeks = attendanceData[id]||{};
+    let totalAbs=0, totalLate=0;
+    Object.values(weeks).forEach(w=>{ totalAbs += w.absences; totalLate += w.late; });
+    const score = totalAbs*2 + totalLate*1;
+    return {id, name: schoolsData[id]?.name||id, totalAbs, totalLate, score, count:Object.keys(weeks).length};
+  });
+}
+
+function renderDashboard(){
+  const ids = getFilteredIds();
+  const totals = schoolTotals().sort((a,b)=>a.score-b.score);
+
+  // جدول الترتيب
+  const tbody = document.getElementById("rankTable");
+  if(totals.length===0){
+    tbody.innerHTML = `<tr><td colspan="6" class="note">لا توجد فصول ضمن هذه الفئة</td></tr>`;
+  } else if(totals.every(t=>t.count===0)){
+    tbody.innerHTML = `<tr><td colspan="6" class="note">لا توجد بيانات بعد</td></tr>`;
+  } else {
+    const medals = ["🥇","🥈","🥉"];
+    tbody.innerHTML = totals.map((t,i)=>`
+      <tr class="${i===0?'rank1':''}">
+        <td>${medals[i]||(i+1)}</td>
+        <td>${t.name}</td>
+        <td>${t.totalAbs}</td>
+        <td>${t.totalLate}</td>
+        <td>${t.score}</td>
+        <td>${t.count}</td>
+      </tr>`).join("");
+  }
+
+  // بار تشارت (حسب مؤشر الانضباط)
+  const bc = document.getElementById("barChart");
+  const sorted = [...totals];
+  barChart?.destroy();
+  barChart = new Chart(bc, {
+    type:"bar",
+    data:{
+      labels: sorted.map(t=>t.name),
+      datasets:[{ data: sorted.map(t=>t.score),
+        backgroundColor: sorted.map((_,i)=>palette[i%palette.length]),
+        borderRadius:8 }]
+    },
+    options:{ plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{precision:0}}} }
+  });
+
+  // خط اتجاه كل فصل (مؤشر الانضباط الأسبوعي)
+  const lc = document.getElementById("lineChart");
+  const weekLabels = WEEKS.map(w=>"أسبوع "+w.n);
+  lineChart?.destroy();
+  lineChart = new Chart(lc, {
+    type:"line",
+    data:{
+      labels: weekLabels,
+      datasets: ids.map((id,i)=>({
+        label: schoolsData[id]?.name||id,
+        data: WEEKS.map(w=>{
+          const v = attendanceData[id]?.[w.n];
+          return v!=null ? v.absences*2 + v.late : null;
+        }),
+        borderColor: palette[i%palette.length],
+        backgroundColor: palette[i%palette.length],
+        spanGaps:true, tension:.3
+      }))
+    },
+    options:{ plugins:{legend:{position:"bottom",labels:{boxWidth:10,font:{size:10}}}} }
+  });
+
+  // تحليل عام: مجموع مؤشر الانضباط لكل الأسابيع
+  const tc = document.getElementById("trendChart");
+  const weeklySums = WEEKS.map(w=>{
+    let sum=0, has=false;
+    ids.forEach(id=>{ const v=attendanceData[id]?.[w.n]; if(v!=null){sum+=v.absences*2+v.late; has=true;} });
+    return has?sum:null;
+  });
+  trendChart?.destroy();
+  trendChart = new Chart(tc, {
+    type:"line",
+    data:{ labels: weekLabels, datasets:[{ data: weeklySums, borderColor:"#145C4B",
+      backgroundColor:"rgba(20,92,75,.12)", fill:true, tension:.35, spanGaps:true }] },
+    options:{ plugins:{legend:{display:false}} }
+  });
+
+  // مؤشر الزيادة/النقصان آخر أسبوعين مسجّلين
+  const entered = weeklySums.map((v,i)=>({v,i})).filter(x=>x.v!=null);
+  const deltaBox = document.getElementById("trendDelta");
+  if(entered.length>=2){
+    const last = entered[entered.length-1], prev = entered[entered.length-2];
+    const diff = last.v - prev.v;
+    const pct = prev.v? Math.round(Math.abs(diff)/prev.v*100) : 0;
+    deltaBox.innerHTML = diff===0
+      ? `لا تغيير في مؤشر الانضباط العام بين الأسبوع ${prev.i+1} والأسبوع ${last.i+1}.`
+      : `مؤشر الانضباط العام ${diff>0?'ارتفع':'انخفض'} بنسبة تقريبية <span class="${diff>0?'delta-up':'delta-down'}">${pct}%</span> عن الأسبوع السابق (من ${prev.v} إلى ${last.v}).`;
+  } else {
+    deltaBox.textContent = "يظهر التحليل العام بعد إدخال بيانات أسبوعين على الأقل.";
+  }
+}
+
+function renderAdminSchoolLog(){
+  const tbody = document.getElementById("adminSchoolLog");
+  if(!tbody || document.getElementById("adminAttendancePanel").classList.contains("hidden")) return;
+  const id = document.getElementById("adminSchoolSelect").value;
+  const data = attendanceData[id] || {};
+  const rows = WEEKS.filter(w=> data[w.n]!=null)
+    .map(w=>`<tr><td>${w.n}</td><td>${fmtRange(w)}</td><td>${data[w.n].absences}</td><td>${data[w.n].late}</td></tr>`);
+  tbody.innerHTML = rows.length ? rows.join("") : `<tr><td colspan="4" class="note">لا يوجد سجل بعد</td></tr>`;
+}
+
+/* ---------- لوحة الإعداد ---------- */
+document.getElementById("btnAdminLogin").addEventListener("click", ()=>{
+  const val = document.getElementById("adminPass").value;
+  const msg = document.getElementById("adminMsg");
+  if(val !== ADMIN_PASSWORD){
+    msg.className="msg err"; msg.textContent="الرمز غير صحيح."; return;
+  }
+  document.getElementById("adminGate").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
+  document.getElementById("adminAttendancePanel").classList.remove("hidden");
+  document.getElementById("adminFeedbackPanel").classList.remove("hidden");
+  buildSetupPanel(true);
+  prefillAdminAttendance();
+  renderAdminSchoolLog();
+  renderAdminFeedbackList();
+});
+
+function buildSetupPanel(force){
+  const box = document.getElementById("schoolsSetup");
+  if(document.getElementById("adminPanel").classList.contains("hidden")) return;
+
+  // لا نعيد رسم القائمة إلا إذا تغيّرت مجموعة الفصول فعليًا (إضافة/حذف)
+  // عشان لا نمسح تعديلات غير محفوظة بصفوف ثانية عند حفظ صف واحد
+  if(!force){
+    const currentIds = Array.from(box.querySelectorAll("[data-delete]")).map(b=>b.dataset.delete);
+    const sameIds = currentIds.length===SCHOOL_IDS.length && currentIds.every((id,i)=>id===SCHOOL_IDS[i]);
+    if(sameIds && currentIds.length>0) return;
+  }
+
+  box.innerHTML = SCHOOL_IDS.map(id=>{
+    const s = schoolsData[id] || {name:id, category:"primary"};
+    const cat = s.category || "primary";
+    return `
+      <div class="setup-row">
+        <div>
+          <label>اسم الفصل</label>
+          <input data-id="${id}" data-field="name" value="${s.name||''}">
+        </div>
+        <div>
+          <label>الفئة</label>
+          <select data-id="${id}" data-field="category">
+            <option value="primary" ${cat==="primary"?"selected":""}>الأولية</option>
+            <option value="upper" ${cat==="upper"?"selected":""}>العليا</option>
+          </select>
+        </div>
+        <button class="btn-del" data-delete="${id}" title="حذف الفصل">✕</button>
+      </div>`;
+  }).join("");
+
+  box.querySelectorAll("[data-delete]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.dataset.delete;
+      const name = schoolsData[id]?.name || id;
+      if(SCHOOL_IDS.length <= 2){
+        alert("لازم يبقى فصلين على الأقل عشان تصير هناك منافسة."); return;
+      }
+      if(!confirm(`متأكدة تبين تحذفين "${name}"؟ هذا يحذف اسمه وكل سجل غيابه نهائيًا ولا يمكن التراجع.`)) return;
+      const attSnap = await getDocs(query(collection(db,"attendance"), where("schoolId","==",id)));
+      for(const d of attSnap.docs){ await deleteDoc(d.ref); }
+      await deleteDoc(doc(db,"schools",id));
+    });
+  });
+}
+
+document.getElementById("btnAddSchool").addEventListener("click", async ()=>{
+  const maxOrder = SCHOOL_IDS.reduce((m,id)=> Math.max(m, schoolsData[id]?.order ?? 0), -1);
+  const newRef = doc(collection(db,"schools"));
+  await setDoc(newRef, {
+    name: `فصل جديد`,
+    order: maxOrder+1,
+    category: "primary"
+  });
+});
+
+document.getElementById("btnSaveSetup").addEventListener("click", async ()=>{
+  const fields = document.querySelectorAll("#schoolsSetup input, #schoolsSetup select");
+  const updates = {};
+  fields.forEach(inp=>{
+    updates[inp.dataset.id] = updates[inp.dataset.id] || {};
+    updates[inp.dataset.id][inp.dataset.field] = inp.value.trim();
+  });
+  const msg = document.getElementById("setupMsg");
+  try{
+    for(const id of Object.keys(updates)){
+      await setDoc(doc(db,"schools",id), updates[id], {merge:true});
+    }
+    msg.className="msg ok"; msg.textContent="تم حفظ التعديلات ✓";
+  }catch(e){
+    msg.className="msg err"; msg.textContent="حدث خطأ أثناء الحفظ: "+e.message;
+  }
+});
+
+/* ---------- تعديل غياب أي مدرسة من الإعداد (بدون قفل) ---------- */
+function prefillAdminAttendance(){
+  const schoolSel = document.getElementById("adminSchoolSelect");
+  const weekSel = document.getElementById("adminWeekSelect");
+  const val = attendanceData[schoolSel.value]?.[Number(weekSel.value)];
+  document.getElementById("adminAbsencesInput").value = val!=null ? val.absences : "";
+  document.getElementById("adminLateInput").value = val!=null ? val.late : "";
+  showWeekNote("adminWeekNote", Number(weekSel.value));
+  renderAdminSchoolLog();
+}
+document.getElementById("adminSchoolSelect").addEventListener("change", prefillAdminAttendance);
+document.getElementById("adminWeekSelect").addEventListener("change", prefillAdminAttendance);
+
+document.getElementById("btnAdminSaveAttendance").addEventListener("click", async ()=>{
+  const schoolId = document.getElementById("adminSchoolSelect").value;
+  const week = Number(document.getElementById("adminWeekSelect").value);
+  const absences = Number(document.getElementById("adminAbsencesInput").value);
+  const late = Number(document.getElementById("adminLateInput").value || 0);
+  const msg = document.getElementById("adminAttendanceMsg");
+  if(isNaN(absences) || absences<0){
+    msg.className="msg err"; msg.textContent="أدخلي رقمًا صحيحًا لعدد حالات الغياب."; return;
+  }
+  if(isNaN(late) || late<0){
+    msg.className="msg err"; msg.textContent="أدخلي رقمًا صحيحًا لعدد مرات التأخر."; return;
+  }
+  await setDoc(doc(db,"attendance", `${schoolId}_w${week}`), {
+    schoolId, weekNumber: week, absences, late, updatedAt: new Date().toISOString(), editedByAdmin: true
+  });
+  msg.className="msg ok"; msg.textContent="تم حفظ التعديل ✓";
+});
+
+/* ---------- تقرير أسبوعي (طباعة/حفظ PDF) ---------- */
+function getIdsByCategory(cat){
+  if(cat === "all") return SCHOOL_IDS;
+  return SCHOOL_IDS.filter(id => (schoolsData[id]?.category || "primary") === cat);
+}
+
+function buildWeekSection(w, ids, pageBreak){
+  const rows = ids.map(id=>{
+    const val = attendanceData[id]?.[w.n];
+    const score = val!=null ? val.absences*2 + val.late : null;
+    return { name: schoolsData[id]?.name || id, val, score };
+  }).sort((a,b)=>{
+    if(a.score==null && b.score==null) return 0;
+    if(a.score==null) return 1;
+    if(b.score==null) return -1;
+    return a.score - b.score;
+  });
+
+  const medals = ["🥇","🥈","🥉"];
+  const rowsHtml = rows.length
+    ? rows.map((r,i)=>`
+      <tr>
+        <td>${medals[i]||(i+1)}</td>
+        <td>${r.name}</td>
+        <td>${r.val!=null ? r.val.absences : "—"}</td>
+        <td>${r.val!=null ? r.val.late : "—"}</td>
+        <td>${r.score!=null ? r.score : "لم تُدخل بيانات"}</td>
+      </tr>`).join("")
+    : `<tr><td colspan="5" class="note">لا توجد فصول ضمن هذه الفئة</td></tr>`;
+
+  const noteHtml = w.note ? `<p class="note">⚠️ ${w.note}</p>` : "";
+
+  return `
+  <section${pageBreak ? ' style="page-break-after:always;"' : ''}>
+    <h2 class="week-title">الأسبوع ${w.n} من 19  —  (${fmtRange(w)})</h2>
+    ${noteHtml}
+    <table>
+      <thead><tr><th>#</th><th>الفصل</th><th>غياب</th><th>تأخر</th><th>مؤشر الانضباط</th></tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <p class="note">مؤشر الانضباط = (الغياب × ٢) + (التأخر × ١) — الأقل هو الأكثر انضباطًا.</p>
+  </section>`;
+}
+
+document.getElementById("btnDownloadReport").addEventListener("click", ()=>{
+  const selected = document.getElementById("reportWeekSelect").value;
+  const catValue = document.getElementById("reportCategorySelect").value;
+  const ids = getIdsByCategory(catValue);
+  const today = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
+  const isAll = selected === "all";
+  const catLabel = catValue==="primary" ? "الصفوف الأولية (١-٣)" : catValue==="upper" ? "الصفوف العليا (٤-٦)" : "كل الفصول";
+
+  let titleText, metaText, bodyHtml;
+  if(isAll){
+    titleText = "تقرير شامل — كل الأسابيع";
+    metaText = `تقرير شامل لكل أسابيع الفصل الدراسي الأول — ${catLabel}  —  تم إنشاء التقرير بتاريخ ${today}`;
+    bodyHtml = WEEKS.map((w,i)=> buildWeekSection(w, ids, i < WEEKS.length-1)).join("");
+  } else {
+    const w = WEEKS.find(x=>x.n===Number(selected));
+    if(!w) return;
+    titleText = `تقرير الأسبوع ${w.n}`;
+    metaText = `${catLabel}  —  تم إنشاء التقرير بتاريخ ${today}`;
+    bodyHtml = buildWeekSection(w, ids, false);
+  }
+
+  const reportHtml = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>${titleText} — منافسة الانضباط</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Tajawal',sans-serif;direction:rtl;color:#1F2A24;margin:36px;}
+  h1{font-family:'Cairo';font-size:22px;color:#0C3D31;margin-bottom:4px;}
+  h2.week-title{font-family:'Cairo';font-size:15px;color:#145C4B;margin-top:24px;font-weight:700;}
+  .meta{color:#6B7A73;font-size:13px;margin-bottom:24px;}
+  table{width:100%;border-collapse:collapse;margin-top:10px;}
+  th,td{padding:10px 8px;text-align:right;border-bottom:1px solid #E4E0D8;font-size:14px;}
+  th{background:#F7F5F1;color:#6B7A73;font-size:12.5px;}
+  tr:first-child td{font-weight:800;color:#C9A227;}
+  .note{background:#FBEAE6;color:#B3462C;padding:10px 12px;border-radius:8px;font-size:13px;}
+  footer{margin-top:40px;border-top:1px solid #E4E0D8;padding-top:14px;font-size:12px;color:#6B7A73;text-align:center;}
+  @media print{ body{margin:14mm;} }
+</style>
+</head>
+<body>
+  <h1>منافسة الانضباط</h1>
+  <div class="meta">${metaText}</div>
+  ${bodyHtml}
+  <footer>مدرسة الابتدائية ٣٨ — مديرة المدرسة: تهاني الهليل</footer>
+  <sc${''}ript>
+    window.onload = function(){ setTimeout(function(){ window.print(); }, 450); };
+  </sc${''}ript>
+</body>
+</html>`;
+
+  const win = window.open("", "_blank");
+  if(!win){ alert("المتصفح منع فتح نافذة جديدة — فعّلي السماح بالنوافذ المنبثقة لهذا الموقع وحاولي مرة ثانية."); return; }
+  win.document.write(reportHtml);
+  win.document.close();
+});
+
+/* ---------- شركاء النجاح (آراء واقتراحات أولياء الأمور) ---------- */
+let feedbackData = [];
+
+onSnapshot(collection(db,"feedback"), snap=>{
+  feedbackData = [];
+  snap.forEach(d=> feedbackData.push({ id: d.id, ...d.data() }));
+  feedbackData.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+  renderFeedback();
+  renderAdminFeedbackList();
+});
+
+function feedbackItemHtml(f, withDelete){
+  const date = f.createdAt ? new Date(f.createdAt).toLocaleDateString('ar-SA', {day:'numeric', month:'long'}) : "";
+  const delBtn = withDelete ? `<button class="fb-del" data-fbdel="${f.id}" title="حذف">✕</button>` : "";
+  const displayName = f.name || "ولي أمر";
+  const initial = displayName.trim().charAt(0) || "؟";
+  return `
+    <div class="fb-item">
+      ${delBtn}
+      <div class="fb-avatar">${initial}</div>
+      <div class="fb-body">
+        <span class="fb-name">${displayName}</span><span class="fb-date">${date}</span>
+        <div class="fb-text">${f.message}</div>
+      </div>
+    </div>`;
+}
+
+// اللوحة العامة: عرض فقط، بدون أي زر حذف مهما كانت حالة الجلسة
+function renderFeedback(){
+  const box = document.getElementById("feedbackList");
+  if(!box) return;
+  if(feedbackData.length === 0){
+    box.innerHTML = `<div class="fb-empty">لا توجد آراء بعد — كوني أول من يشارك رأيها 🌿</div>`;
+    return;
+  }
+  box.innerHTML = feedbackData.map(f=> feedbackItemHtml(f, false)).join("");
+}
+
+// لوحة الإدارة فقط: نفس القائمة لكن مع زر حذف، ما تُبنى إلا داخل تبويب الإدارة بعد إدخال الرمز
+function renderAdminFeedbackList(){
+  const box = document.getElementById("adminFeedbackList");
+  if(!box || document.getElementById("adminFeedbackPanel").classList.contains("hidden")) return;
+  if(feedbackData.length === 0){
+    box.innerHTML = `<div class="fb-empty">لا توجد آراء بعد.</div>`;
+  } else {
+    box.innerHTML = feedbackData.map(f=> feedbackItemHtml(f, true)).join("");
+  }
+  box.querySelectorAll("[data-fbdel]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      if(!confirm("متأكدة تبين تحذفين هذا الرأي؟")) return;
+      await deleteDoc(doc(db,"feedback", btn.dataset.fbdel));
+    });
+  });
+}
+
+document.getElementById("btnSendFeedback").addEventListener("click", async ()=>{
+  const name = document.getElementById("feedbackName").value.trim();
+  const message = document.getElementById("feedbackText").value.trim();
+  const msg = document.getElementById("feedbackMsg");
+  if(!message){
+    msg.className="msg err"; msg.textContent="اكتبي رأيك أو اقتراحك قبل الإرسال."; return;
+  }
+  await setDoc(doc(collection(db,"feedback")), {
+    name, message, createdAt: new Date().toISOString()
+  });
+  document.getElementById("feedbackName").value = "";
+  document.getElementById("feedbackText").value = "";
+  msg.className="msg ok"; msg.textContent="شكرًا لمشاركتك رأيك ✓";
+});
+
+/* ---------- التهيئة الأولى ---------- */
+ensureSchoolsExist();
+</script>
+</body>
+</html>
